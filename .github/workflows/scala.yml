@@ -8,18 +8,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup Java and SBT
-      uses: olafurpg/setup-scala@v10
-      with:
-        java-version: "adopt@1.11"
+      - name: Setup Java and SBT
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: "adopt@1.11"
 
-    - name: Build Azure SB
-      run: sbt "project kafka-connect-azure-servicebus" clean compile package
+      - name: Compile full Stream Reactor project
+        run: sbt clean compile package
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: azure-sb-jar
-        path: kafka-connect-azure-servicebus/target/scala-2.12/*.jar
+      - name: Upload Azure SB and Common JARs
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-servicebus-connectors
+          path: |
+            kafka-connect-azure-servicebus/target/scala-2.12/*.jar
+            kafka-connect-common/target/scala-2.12/*.jar
