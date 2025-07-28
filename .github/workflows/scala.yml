@@ -1,0 +1,25 @@
+name: Build Azure Service Bus Connector
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Java and SBT
+      uses: olafurpg/setup-scala@v10
+      with:
+        java-version: "adopt@1.11"
+
+    - name: Build Azure SB
+      run: sbt "project kafka-connect-azure-servicebus" clean compile package
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: azure-sb-jar
+        path: kafka-connect-azure-servicebus/target/scala-2.12/*.jar
