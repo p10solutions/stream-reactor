@@ -1,25 +1,38 @@
-name: Build kafka-connect-common
+name: Build Common Only
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-common:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Java and SBT
-      uses: olafurpg/setup-scala@v10
-      with:
-        java-version: "adopt@1.11"
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
 
-    - name: Build kafka-connect-common
-      run: sbt "project kafka-connect-common" clean compile package
+      - name: Cache Ivy and SBT
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: sbt-cache-${{ runner.os }}-${{ hashFiles('**/build.sbt') }}
+          restore-keys: |
+            sbt-cache-${{ runner.os }}-
 
-    - name: Upload kafka-connect-common JAR
-      uses: actions/upload-artifact@v4
-      with:
-        name: kafka-connect-common-jar
-        path: kafka-connect-common/target/scala-2.12/*.jar
+      - name: Compile and package common
+        run: |
+          sbt "project common" clean compile package
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: kafka-connect-common-jar
+          path: kafka-connect-common/target/scala-2.12/*.jar
